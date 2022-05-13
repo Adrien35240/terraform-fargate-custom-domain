@@ -20,9 +20,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        role-to-assume: arn:aws:iam::141115429158:role/newoidcrole
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
+        role-to-assume: arn:aws:iam::141115429158:role/fargate-test-role
         aws-region: eu-west-3
 
     - name: Log in to Amazon ECR
