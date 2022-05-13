@@ -1,0 +1,1 @@
+default_region  = "eu-west-3"
