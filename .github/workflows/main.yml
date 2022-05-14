@@ -42,6 +42,8 @@ jobs:
     needs: deploy
     
     steps:
+      - uses: actions/checkout@v2 
+        with:
+          path: deploy
       - name: apply
-        working-directory: ./deploy
         run: terraform apply -auto-approve -input=yes
