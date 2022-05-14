@@ -1,8 +1,3 @@
-data "aws_ecr_image" "wiremock" {
-  repository_name = aws_ecr_repository.test.name
-  image_tag = "latest"
-}
-
 resource "aws_ecs_task_definition" "backend_task" {
     family = "backend_example_app_family"
 
@@ -21,7 +16,7 @@ resource "aws_ecs_task_definition" "backend_task" {
 [
     {
         "name": "example_app_container",
-        "image": "${aws_ecr_repository.test.repository_url}:latest@${data.aws_ecr_image.wiremock.image_digest}",
+        "image": "${aws_ecr_repository.test.repository_url}:latest",
         "memory": 512,
         "essential": true,
         "portMappings": [
@@ -41,7 +36,7 @@ resource "aws_ecs_cluster" "backend_cluster" {
 
 resource "aws_ecs_service" "backend_service" {
     name = "backend_service"
-    
+    force_new_deployment = true
     cluster = "${aws_ecs_cluster.backend_cluster.id}"
     task_definition = "${aws_ecs_task_definition.backend_task.arn}"
 
