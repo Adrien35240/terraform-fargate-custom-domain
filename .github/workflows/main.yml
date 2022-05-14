@@ -42,8 +42,6 @@ jobs:
     needs: deploy
     
     steps:
-      - name: select dir
-        run: ls
-        working-directory: ./deploy
       - name: apply
+        working-directory: deploy
         run: terraform apply -auto-approve -input=yes
