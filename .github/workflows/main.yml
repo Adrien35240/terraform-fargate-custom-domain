@@ -44,6 +44,7 @@ jobs:
     
     steps:
       - name: select dir
+        run: ls
         working-directory: ./deploy
       - name: apply
         run: terraform apply -auto-approve -input=yes
