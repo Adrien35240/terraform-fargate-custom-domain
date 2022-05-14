@@ -45,24 +45,7 @@ resource "aws_security_group" "security_group_example_app" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 }
+# TODO: create a ip elastic
+# TODO: create network-lb affect to ip elastic with target group affect private ip of the task
+# TODO: create record with r53 test.lablanchere.fr with alias to network-balancer
 
-
-resource "aws_route53_zone" "lablanchere" {
-  name = "lablanchere.fr"
-
-  vpc {
-    vpc_id = aws_vpc.vpc_example_app.id
-  }
-
-  # Prevent the deletion of associated VPCs after
-  # the initial creation. See documentation on
-  # aws_route53_zone_association for details
-  lifecycle {
-    ignore_changes = [vpc]
-  }
-}
-
-resource "aws_route53_vpc_association_authorization" "example" {
-  vpc_id  = aws_vpc.vpc_example_app.id
-  zone_id = aws_route53_zone.lablanchere.id
-}
