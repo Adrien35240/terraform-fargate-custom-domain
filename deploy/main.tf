@@ -1,7 +1,6 @@
 provider "aws" {
-  region = var.default_region
+  region  = "eu-west-3"
 }
-
-resource "aws_ecr_repository" "helloworld" {
-  name                 = "helloworld"
+resource "aws_ecr_repository" "test" {
+    name = "test"
 }
