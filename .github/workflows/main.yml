@@ -46,4 +46,4 @@ jobs:
         with:
           path: deploy
       - name: apply
-        run: terraform apply -auto-approve -input=yes
+        run: terraform apply -auto-approve
