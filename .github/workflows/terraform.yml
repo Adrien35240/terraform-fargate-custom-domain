@@ -1,0 +1,11 @@
+on:
+  workflow_run:
+    workflows: ['Deploy']
+    types:
+      - completed
+
+jobs:
+  terraform:
+    name: Terraform Apply
+    working-directory: ./deploy
+    run: terraform apply -auto-approve -input=yes

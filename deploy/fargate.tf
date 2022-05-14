@@ -1,7 +1,3 @@
-data "aws_ecr_image" "wiremock" {
-  repository_name = aws_ecr_repository.test.name
-  image_tag = "latest"
-}
 
 resource "aws_ecs_task_definition" "backend_task" {
     family = "backend_example_app_family"
@@ -13,7 +9,6 @@ resource "aws_ecs_task_definition" "backend_task" {
     // Valid sizes are shown here: https://aws.amazon.com/fargate/pricing/
     memory = "512"
     cpu = "256"
-
     // Fargate requires task definitions to have an execution role ARN to support ECR images
     execution_role_arn = "${aws_iam_role.ecs_role.arn}"
     
@@ -21,7 +16,7 @@ resource "aws_ecs_task_definition" "backend_task" {
 [
     {
         "name": "example_app_container",
-        "image": "${aws_ecr_repository.test.repository_url}:${data.aws_ecr_image.wiremock.image_tag}@${data.aws_ecr_image.wiremock.image_digest}",
+        "image": "${aws_ecr_repository.test.repository_url}:latest",
         "memory": 512,
         "essential": true,
         "portMappings": [
