@@ -9,7 +9,6 @@ resource "aws_ecs_task_definition" "backend_task" {
     // Fargate is a type of ECS that requires awsvpc network_mode
     requires_compatibilities = ["FARGATE"]
     network_mode = "awsvpc"
-
     // Valid sizes are shown here: https://aws.amazon.com/fargate/pricing/
     memory = "512"
     cpu = "256"
@@ -43,13 +42,12 @@ resource "aws_ecs_service" "backend_service" {
     force_new_deployment = true
     cluster = "${aws_ecs_cluster.backend_cluster.id}"
     task_definition = "${aws_ecs_task_definition.backend_task.arn}"
-
     launch_type = "FARGATE"
     desired_count = 1
 
     network_configuration {
         subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
-        security_groups = ["${aws_security_group.security_group_example_app.id}"]
+        security_groups = ["${aws_security_group.test.id}"]
         assign_public_ip = true
     }
 }

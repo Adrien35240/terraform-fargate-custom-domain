@@ -26,8 +26,8 @@ resource "aws_route" "internet_access" {
     gateway_id = "${aws_internet_gateway.internet_gateway.id}"
 }
 
-resource "aws_security_group" "security_group_example_app" {
-    name = "security_group_example_app"
+resource "aws_security_group" "test" {
+    name = "test"
     description = "Allow TLS inbound traffic on port 80 (http)"
     vpc_id = "${aws_vpc.vpc_example_app.id}"
 
@@ -45,7 +45,50 @@ resource "aws_security_group" "security_group_example_app" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 }
+
 # TODO: create a ip elastic
+resource "aws_eip" "test" {
+  vpc                       = true
+}
+
+# TODO: target group
+resource "aws_lb_target_group" "test" {
+  name        = "test"
+  target_type = "ip"
+  port        = 80
+  protocol    = "TCP"
+  vpc_id      = aws_vpc.vpc_example_app.id
+  
+}
+
 # TODO: create network-lb affect to ip elastic with target group affect private ip of the task
+resource "aws_lb" "test" {
+  name               = "test"
+  internal           = false
+  load_balancer_type = "network"
+ # subnets            = [for subnet in aws_subnet.public : subnet.id]
+  subnet_mapping {
+    subnet_id     = aws_subnet.public_a.id
+    allocation_id = aws_eip.test.id
+  }
+}
+# attach target group to task ip
+resource "aws_lb_target_group_attachment" "test" {
+  target_group_arn = aws_lb_target_group.test.arn
+  target_id        = aws_ecs_task_definition.backend_task.id
+  port             = 80
+}
+# attach target group to lb
+resource "aws_alb_listener" "test" {
+  load_balancer_arn = aws_lb.test.arn
+  port = "80"
+  protocol = "TCP"
+//  certificate_arn = var.certificate_arn
+
+  default_action {
+    target_group_arn = aws_lb_target_group.test.id
+    type             = "forward"
+  }
+}
 # TODO: create record with r53 test.lablanchere.fr with alias to network-balancer
 
