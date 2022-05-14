@@ -41,7 +41,9 @@ jobs:
     name: Terraform Apply
     runs-on: ubuntu-latest
     needs: deploy
-    working-directory: ./deploy
+    
     steps:
+      - name: select dir
+        working-directory: ./deploy
       - name: apply
         run: terraform apply -auto-approve -input=yes
