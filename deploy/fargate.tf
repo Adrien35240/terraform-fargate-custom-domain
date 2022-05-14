@@ -24,8 +24,8 @@ resource "aws_ecs_task_definition" "backend_task" {
         "essential": true,
         "portMappings": [
             {
-                "containerPort": 3000,
-                "hostPort": 3000
+                "containerPort": 80,
+                "hostPort": 80
             }
         ]
     }
@@ -44,9 +44,13 @@ resource "aws_ecs_service" "backend_service" {
     task_definition = "${aws_ecs_task_definition.backend_task.arn}"
     launch_type = "FARGATE"
     desired_count = 1
-
+    load_balancer {
+      target_group_arn = aws_lb_target_group.test-tg.arn
+      container_name = "example_app_container"
+      container_port = 80
+    }
     network_configuration {
-        subnets = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
+        subnets = ["${aws_subnet.public_a.id}"]
         security_groups = ["${aws_security_group.test.id}"]
         assign_public_ip = true
     }

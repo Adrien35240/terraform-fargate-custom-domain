@@ -52,7 +52,7 @@ resource "aws_eip" "test" {
 }
 
 # TODO: target group
-resource "aws_lb_target_group" "test" {
+resource "aws_lb_target_group" "test-tg" {
   name        = "test"
   target_type = "ip"
   port        = 80
@@ -72,23 +72,19 @@ resource "aws_lb" "test" {
     allocation_id = aws_eip.test.id
   }
 }
-# attach target group to task ip
-resource "aws_lb_target_group_attachment" "test" {
-  target_group_arn = aws_lb_target_group.test.arn
-  target_id        = aws_ecs_task_definition.backend_task.id
-  port             = 80
-}
 # attach target group to lb
-resource "aws_alb_listener" "test" {
+resource "aws_lb_listener" "test" {
   load_balancer_arn = aws_lb.test.arn
   port = "80"
   protocol = "TCP"
 //  certificate_arn = var.certificate_arn
 
   default_action {
-    target_group_arn = aws_lb_target_group.test.id
+    target_group_arn = aws_lb_target_group.test-tg.id
     type             = "forward"
   }
 }
+
+# TODO: create ecr repo with github and publid docker image in it
 # TODO: create record with r53 test.lablanchere.fr with alias to network-balancer
 
