@@ -11,7 +11,7 @@ resource "aws_ecs_task_definition" "test" {
     memory = "512"
     cpu = "256"
     execution_role_arn = "${aws_iam_role.ecs_role.arn}"
-    
+   
     container_definitions = <<EOT
 [
     {
@@ -28,6 +28,11 @@ resource "aws_ecs_task_definition" "test" {
     }
 ]
 EOT
+
+ lifecycle {
+      countType = imageCountMoreThan
+      countNumber = 4
+    }
 }
 
 resource "aws_ecs_cluster" "test" {
