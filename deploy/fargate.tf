@@ -29,10 +29,6 @@ resource "aws_ecs_task_definition" "test" {
 ]
 EOT
 
- lifecycle {
-      countType = imageCountMoreThan
-      countNumber = 4
-    }
 }
 
 resource "aws_ecs_cluster" "test" {
