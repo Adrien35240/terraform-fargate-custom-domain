@@ -1,27 +1,27 @@
-resource "aws_vpc" "vpc_example_app" {
+resource "aws_vpc" "test" {
     cidr_block = "10.0.0.0/16"
     enable_dns_hostnames = true
     enable_dns_support = true
 }
 
 resource "aws_subnet" "public_a" {
-    vpc_id = "${aws_vpc.vpc_example_app.id}"
+    vpc_id = "${aws_vpc.test.id}"
     cidr_block = "10.0.1.0/24"
     availability_zone = "eu-west-3a"
 }
 
 resource "aws_subnet" "public_b" {
-    vpc_id = "${aws_vpc.vpc_example_app.id}"
+    vpc_id = "${aws_vpc.test.id}"
     cidr_block = "10.0.2.0/24"
     availability_zone = "eu-west-3b"
 }
 
 resource "aws_internet_gateway" "internet_gateway" {
-    vpc_id = "${aws_vpc.vpc_example_app.id}"
+    vpc_id = "${aws_vpc.test.id}"
 }
 
 resource "aws_route" "internet_access" {
-    route_table_id = "${aws_vpc.vpc_example_app.main_route_table_id}"
+    route_table_id = "${aws_vpc.test.main_route_table_id}"
     destination_cidr_block = "0.0.0.0/0"
     gateway_id = "${aws_internet_gateway.internet_gateway.id}"
 }
@@ -29,7 +29,7 @@ resource "aws_route" "internet_access" {
 resource "aws_security_group" "test" {
     name = "test"
     description = "Allow TLS inbound traffic on port 80 (http)"
-    vpc_id = "${aws_vpc.vpc_example_app.id}"
+    vpc_id = "${aws_vpc.test.id}"
 
     ingress {
         from_port = 80
@@ -57,7 +57,7 @@ resource "aws_lb_target_group" "test-tg" {
   target_type = "ip"
   port        = 80
   protocol    = "TCP"
-  vpc_id      = aws_vpc.vpc_example_app.id
+  vpc_id      = aws_vpc.test.id
   
 }
 
@@ -84,7 +84,21 @@ resource "aws_lb_listener" "test" {
     type             = "forward"
   }
 }
-
-# TODO: create ecr repo with github and publid docker image in it
 # TODO: create record with r53 test.lablanchere.fr with alias to network-balancer
+data "aws_route53_zone" "test" {
+  name         = "lablanchere.fr"
+}
+resource "aws_route53_record" "test-www" {
+  zone_id = data.aws_route53_zone.test.zone_id
+  name    = "test"
+  type    = "A"
+  alias {
+    name                   = aws_lb.test.dns_name
+    zone_id                = aws_lb.test.zone_id
+    evaluate_target_health = true
+  }
+}
+
+# TODO: fix ecr empty repository issue when first apply
+
 

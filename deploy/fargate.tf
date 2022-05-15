@@ -1,25 +1,22 @@
-data "aws_ecr_image" "wiremock" {
+data "aws_ecr_image" "test" {
   repository_name = aws_ecr_repository.test.name
   image_tag = "latest"
 }
 
-resource "aws_ecs_task_definition" "backend_task" {
+resource "aws_ecs_task_definition" "test" {
     family = "backend_example_app_family"
 
-    // Fargate is a type of ECS that requires awsvpc network_mode
     requires_compatibilities = ["FARGATE"]
     network_mode = "awsvpc"
-    // Valid sizes are shown here: https://aws.amazon.com/fargate/pricing/
     memory = "512"
     cpu = "256"
-    // Fargate requires task definitions to have an execution role ARN to support ECR images
     execution_role_arn = "${aws_iam_role.ecs_role.arn}"
     
     container_definitions = <<EOT
 [
     {
         "name": "example_app_container",
-        "image": "${aws_ecr_repository.test.repository_url}:${data.aws_ecr_image.wiremock.image_tag}@${data.aws_ecr_image.wiremock.image_digest}",
+        "image": "${aws_ecr_repository.test.repository_url}:${data.aws_ecr_image.test.image_tag}@${data.aws_ecr_image.test.image_digest}",
         "memory": 512,
         "essential": true,
         "portMappings": [
@@ -33,20 +30,20 @@ resource "aws_ecs_task_definition" "backend_task" {
 EOT
 }
 
-resource "aws_ecs_cluster" "backend_cluster" {
-    name = "backend_cluster_example_app"
+resource "aws_ecs_cluster" "test" {
+    name = "test"
 }
 
-resource "aws_ecs_service" "backend_service" {
-    name = "backend_service"
+resource "aws_ecs_service" "test" {
+    name = "test"
     force_new_deployment = true
-    cluster = "${aws_ecs_cluster.backend_cluster.id}"
-    task_definition = "${aws_ecs_task_definition.backend_task.arn}"
+    cluster = "${aws_ecs_cluster.test.id}"
+    task_definition = "${aws_ecs_task_definition.test.arn}"
     launch_type = "FARGATE"
     desired_count = 1
     load_balancer {
       target_group_arn = aws_lb_target_group.test-tg.arn
-      container_name = "example_app_container"
+      container_name = "test"
       container_port = 80
     }
     network_configuration {
