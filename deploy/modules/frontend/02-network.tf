@@ -10,11 +10,11 @@ resource "aws_subnet" "public_a" {
     availability_zone = "eu-west-3a"
 }
 
-resource "aws_subnet" "public_b" {
-    vpc_id = "${aws_vpc.test.id}"
-    cidr_block = "10.0.2.0/24"
-    availability_zone = "eu-west-3b"
-}
+# resource "aws_subnet" "public_b" {
+#     vpc_id = "${aws_vpc.test.id}"
+#     cidr_block = "10.0.2.0/24"
+#     availability_zone = "eu-west-3b"
+# }
 
 resource "aws_internet_gateway" "internet_gateway" {
     vpc_id = "${aws_vpc.test.id}"
@@ -27,7 +27,7 @@ resource "aws_route" "internet_access" {
 }
 
 resource "aws_security_group" "test" {
-    name = "test"
+    name = "${var.app_name}"
     description = "Allow TLS inbound traffic on port 80 (http)"
     vpc_id = "${aws_vpc.test.id}"
 
@@ -46,14 +46,14 @@ resource "aws_security_group" "test" {
     }
 }
 
-# TODO: create a ip elastic
+# create a ip elastic
 resource "aws_eip" "test" {
   vpc                       = true
 }
 
-# TODO: target group
+# target group
 resource "aws_lb_target_group" "test-tg" {
-  name        = "test"
+  name        = "${var.app_name}"
   target_type = "ip"
   port        = 80
   protocol    = "TCP"
@@ -61,9 +61,9 @@ resource "aws_lb_target_group" "test-tg" {
   
 }
 
-# TODO: create network-lb affect to ip elastic with target group affect private ip of the task
+# create network-lb affect to ip elastic with target group affect private ip of the task
 resource "aws_lb" "test" {
-  name               = "test"
+  name               = "${var.app_name}"
   internal           = false
   load_balancer_type = "network"
  # subnets            = [for subnet in aws_subnet.public : subnet.id]
@@ -84,13 +84,13 @@ resource "aws_lb_listener" "test" {
     type             = "forward"
   }
 }
-# TODO: create record with r53 test.lablanchere.fr with alias to network-balancer
+# create record with r53 test.lablanchere.fr with alias to network-balancer
 data "aws_route53_zone" "test" {
-  name         = "lablanchere.fr"
+  name         = "${var.domain_name}"
 }
 resource "aws_route53_record" "test-www" {
   zone_id = data.aws_route53_zone.test.zone_id
-  name    = "test"
+  name    = "${var.app_name}"
   type    = "A"
   alias {
     name                   = aws_lb.test.dns_name
@@ -98,7 +98,3 @@ resource "aws_route53_record" "test-www" {
     evaluate_target_health = true
   }
 }
-
-# TODO: fix ecr empty repository issue when first apply
-
-

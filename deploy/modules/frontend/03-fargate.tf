@@ -4,18 +4,18 @@
 # }
 
 resource "aws_ecs_task_definition" "test" {
-    family = "test-task-definition"
+    family = "${var.app_name}-task-definition"
 
     requires_compatibilities = ["FARGATE"]
     network_mode = "awsvpc"
     memory = "512"
     cpu = "256"
-    execution_role_arn = "${aws_iam_role.ecs_role.arn}"
+    execution_role_arn = "${aws_iam_role.test.arn}"
    
     container_definitions = <<EOT
 [
     {
-        "name": "test_container",
+        "name": "${var.app_name}_container",
         "image": "${aws_ecr_repository.test.repository_url}:latest",
         "memory": 512,
         "essential": true,
@@ -32,11 +32,11 @@ EOT
 }
 
 resource "aws_ecs_cluster" "test" {
-    name = "test"
+    name = "${var.app_name}"
 }
 
 resource "aws_ecs_service" "test" {
-    name = "test"
+    name = "${var.app_name}"
     force_new_deployment = true
     cluster = "${aws_ecs_cluster.test.id}"
     task_definition = "${aws_ecs_task_definition.test.arn}"
@@ -44,7 +44,7 @@ resource "aws_ecs_service" "test" {
     desired_count = 1
     load_balancer {
       target_group_arn = aws_lb_target_group.test-tg.arn
-      container_name = "test_container"
+      container_name = "${var.app_name}_container"
       container_port = 80
     }
     network_configuration {
