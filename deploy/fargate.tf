@@ -1,7 +1,7 @@
-data "aws_ecr_image" "test" {
-  repository_name = aws_ecr_repository.test.name
-  image_tag = "latest"
-}
+# data "aws_ecr_image" "test" {
+#   repository_name = aws_ecr_repository.test.name
+#   image_tag = "latest"
+# }
 
 resource "aws_ecs_task_definition" "test" {
     family = "backend_example_app_family"
@@ -15,8 +15,8 @@ resource "aws_ecs_task_definition" "test" {
     container_definitions = <<EOT
 [
     {
-        "name": "example_app_container",
-        "image": "${aws_ecr_repository.test.repository_url}:${data.aws_ecr_image.test.image_tag}@${data.aws_ecr_image.test.image_digest}",
+        "name": "test_container",
+        "image": "${aws_ecr_repository.test.repository_url}:latest",
         "memory": 512,
         "essential": true,
         "portMappings": [
@@ -43,7 +43,7 @@ resource "aws_ecs_service" "test" {
     desired_count = 1
     load_balancer {
       target_group_arn = aws_lb_target_group.test-tg.arn
-      container_name = "test"
+      container_name = "test_container"
       container_port = 80
     }
     network_configuration {
