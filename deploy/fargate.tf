@@ -4,7 +4,7 @@
 # }
 
 resource "aws_ecs_task_definition" "test" {
-    family = "backend_example_app_family"
+    family = "test-task-definition"
 
     requires_compatibilities = ["FARGATE"]
     network_mode = "awsvpc"
