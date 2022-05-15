@@ -3,7 +3,7 @@ const app = express()
 const port = 80
 app.set('view engine', 'pug');
 app.get('/', (req, res) => {
-    res.send('Hello World! test auto deploy')
+    res.send('Hello World! test auto deploy2')
 })
 
 app.listen(port, () => {
